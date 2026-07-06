@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light" />
+  <title>{{ ui.stationName }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <div class="station">
+    <header class="topbar">
+      <span class="station-name">{{ ui.stationName }}</span>
+      <span class="status" id="status">
+        <span class="status-dot" id="statusDot"></span>
+        <span class="status-text" id="statusText">Checking&hellip;</span>
+      </span>
+    </header>
+
+    <main class="stage">
+
+      <!-- READY -->
+      <section class="panel" id="panelReady">
+        <button class="big-button" id="printButton" type="button">
+          <svg class="ticket-icon" viewBox="0 0 48 32" aria-hidden="true">
+            <rect x="3" y="6" width="42" height="20" rx="4" ry="4"
+                  fill="none" stroke="currentColor" stroke-width="2.5" />
+            <line x1="31" y1="9" x2="31" y2="23"
+                  stroke="currentColor" stroke-width="2.5" stroke-dasharray="3 3" />
+          </svg>
+          <span class="big-button-label">{{ ui.buttonLabel }}</span>
+        </button>
+        <p class="hint">Touch the button to get your number.</p>
+      </section>
+
+      <!-- WORKING -->
+      <section class="panel" id="panelWorking" hidden>
+        <div class="spinner" aria-hidden="true"></div>
+        <p class="working-label">{{ ui.workingLabel }}</p>
+      </section>
+
+      <!-- CONFIRMED -->
+      <section class="panel" id="panelConfirm" hidden>
+        <p class="confirm-eyebrow">{{ ui.confirmEyebrow }}</p>
+        <div class="placard">
+          <p class="placard-number" id="placardNumber" aria-live="assertive">&mdash;</p>
+        </div>
+        <p class="confirm-subtext">{{ ui.confirmSubtext }}</p>
+        <button class="ghost-button" id="nextButton" type="button">{{ ui.doneLabel }}</button>
+      </section>
+
+      <!-- NO TICKETS LEFT -->
+      <section class="panel" id="panelNoTickets" hidden>
+        <div class="message-mark message-mark--warn" aria-hidden="true">!</div>
+        <h1 class="message-title">{{ ui.noTicketsTitle }}</h1>
+        <p class="message-text">{{ ui.noTicketsText }}</p>
+        <button class="ghost-button" id="noTicketsBack" type="button">Back</button>
+      </section>
+
+      <!-- OFFLINE / ERROR -->
+      <section class="panel" id="panelOffline" hidden>
+        <div class="message-mark message-mark--error" aria-hidden="true">!</div>
+        <h1 class="message-title">{{ ui.offlineTitle }}</h1>
+        <p class="message-text" id="offlineText">{{ ui.offlineText }}</p>
+        <button class="ghost-button" id="offlineRetry" type="button">Try again</button>
+      </section>
+
+    </main>
+
+    <footer class="bottombar">
+      <span class="footnote">{{ ui.footnote }}</span>
+    </footer>
+  </div>
+
+  <script>
+    window.STATION_CONFIG = {{ ui | tojson }};
+  </script>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

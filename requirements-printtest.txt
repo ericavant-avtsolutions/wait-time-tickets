@@ -1,0 +1,12 @@
+# Dependencies for the standalone printer test (print_test.py) ONLY.
+# Kept separate from the app's requirements.txt so the app stays lean.
+#
+#   pip install -r requirements-printtest.txt
+#
+# pywin32 is Windows-only and installs only there (needed for silent printing).
+# Pillow renders the ticket image. python-barcode adds a scannable Code128
+# barcode; it is optional -- without it the ticket still prints, just no bars.
+
+pywin32>=306 ; platform_system == "Windows"
+Pillow>=10.0
+python-barcode>=0.15
