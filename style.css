@@ -1,0 +1,322 @@
+/* ===========================================================================
+   Vote Center Ticket Station -- Version 1
+   Design brief: a public, civic self-service kiosk. Legible from a distance,
+   calm, and unmistakable. High contrast, generous scale, accessible by
+   default. Uses only system fonts so it works with no internet on election
+   day. Boldness is spent in one place: the official position-number placard.
+   =========================================================================== */
+
+:root {
+  /* Palette -- institutional navy + a confident, accessible action blue.
+     Red is reserved strictly for the offline state so it always reads as
+     "stop / get help", never as decoration. */
+  --bg-top:      #F3F6FA;
+  --bg-bottom:   #E7EDF4;
+  --ink:         #0B2545;   /* primary text / the number */
+  --ink-soft:    #4A6076;   /* secondary text */
+  --surface:     #FFFFFF;   /* placard */
+  --line:        #CFD9E4;   /* hairlines */
+  --action:      #1B4DB1;   /* the button */
+  --action-dark: #163F92;   /* button pressed */
+  --action-ink:  #FFFFFF;
+  --ok:          #16794B;   /* status: online */
+  --warn:        #B45309;   /* status: no tickets left */
+  --error:       #B42318;   /* status/offline */
+
+  --font: "Segoe UI Variable Display", "Segoe UI", system-ui, -apple-system,
+          "Roboto", "Helvetica Neue", Arial, sans-serif;
+
+  --radius: 22px;
+  --stage-max: 1100px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  font-family: var(--font);
+  color: var(--ink);
+  background: linear-gradient(180deg, var(--bg-top), var(--bg-bottom));
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* --- Overall frame -------------------------------------------------------- */
+
+.station {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: clamp(0.9rem, 2.5vw, 1.5rem) clamp(1.1rem, 3.5vw, 2.4rem);
+  border-bottom: 1px solid var(--line);
+}
+
+.station-name {
+  font-size: clamp(1rem, 2.2vw, 1.35rem);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--ink);
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: clamp(0.85rem, 1.7vw, 1.05rem);
+  font-weight: 600;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+.status-dot {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  background: var(--line);
+  flex: none;
+}
+.status.is-online  .status-dot { background: var(--ok); }
+.status.is-warn    .status-dot { background: var(--warn); }
+.status.is-offline .status-dot { background: var(--error); }
+.status.is-online  .status-text { color: var(--ok); }
+.status.is-warn    .status-text { color: var(--warn); }
+.status.is-offline .status-text { color: var(--error); }
+
+/* --- The stage where panels appear --------------------------------------- */
+
+.stage {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1.5rem, 4vw, 3rem);
+}
+
+.panel {
+  width: 100%;
+  max-width: var(--stage-max);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: clamp(1.2rem, 3vw, 2rem);
+  animation: panel-in 260ms ease-out both;
+}
+
+.panel[hidden] { display: none; }
+
+/* --- READY: the big button ------------------------------------------------ */
+
+.big-button {
+  appearance: none;
+  border: none;
+  cursor: pointer;
+  width: min(620px, 88vw);
+  min-height: min(44vh, 380px);
+  padding: clamp(2rem, 5vw, 3.5rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(1rem, 2.5vw, 1.75rem);
+  color: var(--action-ink);
+  background: var(--action);
+  border-radius: 32px;
+  box-shadow: 0 20px 45px -18px rgba(11, 37, 69, 0.55);
+  transition: transform 90ms ease, background-color 120ms ease,
+              box-shadow 120ms ease;
+}
+.big-button:hover { background: var(--action-dark); }
+.big-button:active {
+  transform: scale(0.985);
+  box-shadow: 0 10px 26px -16px rgba(11, 37, 69, 0.6);
+}
+
+.ticket-icon {
+  width: clamp(3.5rem, 9vw, 5.5rem);
+  height: auto;
+  opacity: 0.95;
+}
+
+.big-button-label {
+  font-size: clamp(2rem, 5.5vw, 3.4rem);
+  font-weight: 800;
+  letter-spacing: 0.005em;
+  line-height: 1.05;
+}
+
+.hint {
+  margin: 0;
+  font-size: clamp(1rem, 2.2vw, 1.3rem);
+  color: var(--ink-soft);
+}
+
+/* --- WORKING -------------------------------------------------------------- */
+
+.spinner {
+  width: clamp(3rem, 8vw, 4.5rem);
+  height: clamp(3rem, 8vw, 4.5rem);
+  border: 6px solid var(--line);
+  border-top-color: var(--action);
+  border-radius: 50%;
+  animation: spin 900ms linear infinite;
+}
+
+.working-label {
+  margin: 0;
+  font-size: clamp(1.3rem, 3vw, 1.9rem);
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+/* --- CONFIRMED: the signature placard ------------------------------------- */
+
+.confirm-eyebrow {
+  margin: 0;
+  font-size: clamp(1rem, 2.4vw, 1.5rem);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.placard {
+  position: relative;
+  width: min(620px, 88vw);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-top: 8px solid var(--action);
+  border-radius: var(--radius);
+  padding: clamp(2rem, 6vw, 4rem) clamp(1.5rem, 6vw, 4rem)
+           clamp(2.4rem, 6vw, 4rem);
+  box-shadow: 0 22px 55px -26px rgba(11, 37, 69, 0.45);
+}
+
+/* A dashed "perforation" line above the number nods at a torn ticket stub. */
+.placard::before {
+  content: "";
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: clamp(1.2rem, 3.5vw, 2rem);
+  border-top: 2px dashed var(--line);
+}
+
+.placard-number {
+  margin: clamp(1rem, 3vw, 1.6rem) 0 0;
+  font-size: clamp(5.5rem, 24vw, 15rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+.confirm-subtext {
+  margin: 0;
+  max-width: 34ch;
+  font-size: clamp(1.1rem, 2.6vw, 1.6rem);
+  color: var(--ink-soft);
+  line-height: 1.35;
+}
+
+/* --- MESSAGES (no tickets / offline) ------------------------------------- */
+
+.message-mark {
+  width: clamp(4rem, 10vw, 6rem);
+  height: clamp(4rem, 10vw, 6rem);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: clamp(2.2rem, 6vw, 3.4rem);
+  font-weight: 800;
+  color: var(--surface);
+}
+.message-mark--warn  { background: var(--warn); }
+.message-mark--error { background: var(--error); }
+
+.message-title {
+  margin: 0;
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.message-text {
+  margin: 0;
+  max-width: 34ch;
+  font-size: clamp(1.1rem, 2.6vw, 1.6rem);
+  color: var(--ink-soft);
+  line-height: 1.35;
+}
+
+/* --- Secondary "ghost" button (Next / Back / Try again) ------------------- */
+
+.ghost-button {
+  appearance: none;
+  cursor: pointer;
+  margin-top: 0.4rem;
+  padding: 0.85em 2em;
+  font-family: inherit;
+  font-size: clamp(1.05rem, 2.4vw, 1.4rem);
+  font-weight: 700;
+  color: var(--action);
+  background: transparent;
+  border: 2px solid var(--action);
+  border-radius: 999px;
+  transition: transform 90ms ease, background-color 120ms ease,
+              color 120ms ease;
+}
+.ghost-button:hover { background: var(--action); color: var(--action-ink); }
+.ghost-button:active { transform: scale(0.98); }
+
+/* --- Footer --------------------------------------------------------------- */
+
+.bottombar {
+  padding: clamp(0.8rem, 2vw, 1.3rem) clamp(1.1rem, 3.5vw, 2.4rem);
+  border-top: 1px solid var(--line);
+  text-align: center;
+}
+.footnote {
+  font-size: clamp(0.8rem, 1.7vw, 1rem);
+  color: var(--ink-soft);
+}
+
+/* --- Focus, motion, small screens ---------------------------------------- */
+
+:focus-visible {
+  outline: 4px solid var(--action);
+  outline-offset: 4px;
+}
+.big-button:focus-visible { outline-offset: 6px; }
+
+@keyframes panel-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.99); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .panel { animation: none; }
+  .spinner { animation-duration: 1600ms; }
+  .big-button, .ghost-button { transition: none; }
+}
+
+@media (max-width: 520px) {
+  .topbar { flex-direction: column; align-items: flex-start; gap: 0.4rem; }
+  .big-button { min-height: 52vh; }
+}
